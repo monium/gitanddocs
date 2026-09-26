@@ -12,14 +12,27 @@ Guía para instalar `uv`, configurar **Zensical**, levantar el servidor de desar
 curl -sSf https://astral.sh/uv/install.sh | sh
 ```
 
-> **Nota:** Tras completar la instalación, cierra y vuelve a abrir tu terminal para asegurarte de que el comando `uv` está disponible.
+Tras la instalación, normalmente se recomienda cerrar y volver a abrir la terminal para que el comando `uv` esté disponible. Sin embargo, no es necesario reiniciar la terminal.
 
-**Comprobar la ruta del ejecutable:**
-   
+Puedes recargar la configuración de Bash en la terminal actual ejecutando:
+
+```bash
+source ~/.bashrc
 ```
-which uv
-```
-*(Debería apuntar habitualmente a `~/.cargo/bin/uv` o `~/.local/bin/uv`)*
+
+Después, comprueba que `uv` está disponible:
+
+`uv --version`
+
+También puedes comprobar dónde está instalado el ejecutable con:
+
+`which uv`
+
+La ruta debería apuntar habitualmente a una ubicación como:
+
+`~/.local/bin/uv`
+
+De esta forma, puedes empezar a utilizar `uv` inmediatamente sin cerrar ni volver a abrir la terminal.
 
 ---
 
