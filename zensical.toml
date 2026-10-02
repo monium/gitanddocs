@@ -13,6 +13,8 @@ site_name = "Documentation"
 nav = [
   { "Get started" = "index.md" },
   { "Markdown in 5min" = "markdown.md" },
+  { "Obtener site" = "get-site.md" },
+  { "Tema Visual" = "tema-visual.md" },
 ]
 
 # extra_css = ["stylesheets/extra.css"]
