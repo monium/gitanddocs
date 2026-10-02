@@ -45,7 +45,7 @@ Juntos permiten crear documentación profesional con recarga en tiempo real y ge
 curl -sSf https://astral.sh/uv/install.sh | sh
 ```
 
-> **Nota:** Tras completar la instalación, cierra y vuelve a abrir tu terminal para asegurarte de que el comando `uv` está disponible.
+Tras la instalación, normalmente se recomienda cerrar y volver a abrir la terminal para que el comando `uv` esté disponible. Sin embargo, no es necesario reiniciar la terminal.
 
 **Comprobar la instalación:**
 
