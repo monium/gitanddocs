@@ -194,3 +194,74 @@ sudo systemctl restart sshd
 
 ---
 
+## Paso 6: Verificar que todo funciona
+
+Sigue sin cerrar la sesión original. Desde **otra terminal nueva** haz estas dos pruebas:
+
+**Prueba 1: con clave (debe funcionar)**
+
+```bash
+ssh usuario@192.168.0.1
+```
+
+Debes entrar sin problemas.
+
+**Prueba 2: forzando contraseña (debe fallar)**
+
+```bash
+ssh -o PubkeyAuthentication=no usuario@192.168.0.1
+```
+
+Debe responder algo como:
+
+```text
+usuario@192.168.0.1: Permission denied (publickey).
+```
+
+Si ves ese mensaje, **¡enhorabuena!** Tu servidor ya solo acepta claves SSH.
+
+---
+
+## Resumen rápido
+
+```bash
+# 1. En tu ordenador: crear la clave
+ssh-keygen -t ed25519 -C "mi-clave"
+
+# 2. Copiar la clave pública al servidor
+ssh-copy-id usuario@192.168.0.1
+
+# 3. Probar el acceso con clave
+ssh usuario@192.168.0.1
+
+# 4. En el servidor: editar la configuración
+sudo vim /etc/ssh/sshd_config
+#    PasswordAuthentication no
+#    KbdInteractiveAuthentication no
+#    PubkeyAuthentication yes
+
+# 5. Comprobar y reiniciar
+sudo sshd -t
+sudo systemctl restart ssh
+```
+
+---
+
+## Problemas frecuentes
+
+| Problema | Posible causa | Solución |
+|----------|---------------|----------|
+| Sigue pidiendo contraseña tras el Paso 3 | Permisos incorrectos en el servidor | `chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys` |
+| `Permission denied (publickey)` al probar con clave | La clave pública no está en `authorized_keys` o es de otro usuario | Repite el Paso 2 con el usuario correcto |
+| Después de reiniciar sigue dejando entrar con contraseña | Un archivo de `sshd_config.d/` lo está reactivando | Revisa el Paso 4 (apartado de archivos que pisan la configuración) |
+| Me he quedado sin acceso | Cerraste la sesión antes de verificar | Si dispones de una **consola web (VNC/rescue)** proporcionado por tu proveedor, desde aquí podrás recuperarlo. |
+| `sshd -t` muestra un error | Error de escritura en `sshd_config` | Revisa la línea que indica el error |
+
+---
+
+## Buenas prácticas
+
+- **Haz copia de seguridad de tu clave privada** (`id_ed25519`) en un lugar seguro. Si la pierdes y has desactivado la contraseña, perderás el acceso.
+- **Usa passphrase** en tu clave privada.
+- **No subas nunca tu clave privada** a GitHub, correo, chats ni nubes públicas.
+- Usa **una clave distinta por ordenador**. Si pierdes uno, solo tienes que borrar su línea de `authorized_keys`.
