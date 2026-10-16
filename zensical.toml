@@ -19,6 +19,10 @@ nav = [
   { "Gitea" = [
   { "Install Gitea with Docker" = "gitea/Install-Gitea-with-docker.md" },
   ]},
+  { "SSH" = [
+  { "Crear una clave SSH" = "ssh/create-ssh-key.md" },
+  { "Conectar a una máquina" = "ssh/connect-to-machine.md" },
+  ]},
 ]
 
 # extra_css = ["stylesheets/extra.css"]
