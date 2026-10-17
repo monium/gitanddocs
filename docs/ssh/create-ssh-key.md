@@ -321,4 +321,4 @@ ssh-keygen -lf ~/.ssh/id_ed25519.pub
 - [Documentación oficial de OpenSSH](https://www.openssh.com/manual.html)
 - [Generar una clave SSH en GitHub](https://docs.github.com/es/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 - [Claves SSH en GitLab](https://docs.gitlab.com/ee/user/ssh.html)
-- [Guía relacionada: conexión SSH y deshabilitar contraseña](connect-to-machine.md)
+- [Guía relacionada: conectarse por SSH a una máquina Debian (desde cero)](connect-to-machine.md)
