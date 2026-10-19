@@ -19,6 +19,9 @@ nav = [
   { "Gitea" = [
   { "Install Gitea with Docker" = "gitea/Install-Gitea-with-docker.md" },
   ]},
+  { "Nginx" = [
+  { "Install Nginx" = "nginx/install-nginx.md" },
+  ]},
 ]
 
 # extra_css = ["stylesheets/extra.css"]
