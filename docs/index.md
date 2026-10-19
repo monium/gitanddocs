@@ -19,12 +19,12 @@ Juntos permiten crear documentación profesional con recarga en tiempo real y ge
 1. [Prerrequisitos](#prerrequisitos)
 2. [Instalar uv](#paso-1-instalar-uv)
 3. [Crear proyecto](#paso-2-crear-la-carpeta-del-proyecto-e-inicializarlo)
-4. [Instalar Zensical](#paso-3-añadir-la-dependencia-de-zensical)
+4. [Instalar Zensical](#paso-3-anadir-la-dependencia-de-zensical)
 5. [Servidor de desarrollo](#paso-4-levantar-el-servidor-local)
-6. [Live Reload](#paso-5-edición-y-actualización-en-tiempo-real-live-reload)
-7. [Comandos útiles](#comandos-útiles)
+6. [Live Reload](#paso-5-edicion-y-actualizacion-en-tiempo-real-live-reload)
+7. [Comandos útiles](#comandos-utiles)
 8. [Estructura del proyecto](#estructura-del-proyecto)
-9. [Solución de problemas](#solución-de-problemas)
+9. [Solución de problemas](#solucion-de-problemas)
 10. [Recursos adicionales](#recursos-adicionales)
 
 ---
