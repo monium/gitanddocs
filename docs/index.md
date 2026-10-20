@@ -1,173 +1,193 @@
+# Uv y Zensical
+
+![Python](https://img.shields.io/badge/Python-3.14+-blue)
+![Zensical](https://img.shields.io/badge/Zensical-0.0.65+-green)
+
+Guía para instalar `uv`, configurar **Zensical**, levantar el servidor de desarrollo y aprovechar la recarga en tiempo real.
+
+## ¿Qué son estas herramientas?
+
+- **[uv](https://github.com/astral-sh/uv)**: Gestor de paquetes y entornos de Python ultrarrápido, escrito en Rust. Reemplaza a `pip`, `pip-tools` y `virtualenv` con una sola herramienta.
+- **[Zensical](https://zensical.org/)**: Generador de sitios estáticos moderno, creado por el equipo de Material for MkDocs. Optimizado para documentación técnica con Markdown, soporta admonitions, tabs, diagramas Mermaid, matemáticas y más.
+
+Juntos permiten crear documentación profesional con recarga en tiempo real y gestión moderna de dependencias.
+
 ---
-icon: lucide/rocket
+
+## Índice
+
+1. [Prerrequisitos](#prerrequisitos)
+2. [Instalar uv](#paso-1-instalar-uv)
+3. [Crear proyecto](#paso-2-crear-la-carpeta-del-proyecto-e-inicializarlo)
+4. [Instalar Zensical](#paso-3-añadir-la-dependencia-de-zensical)
+5. [Servidor de desarrollo](#paso-4-levantar-el-servidor-local)
+6. [Live Reload](#paso-5-edición-y-actualización-en-tiempo-real-live-reload)
+7. [Comandos útiles](#comandos-útiles)
+8. [Estructura del proyecto](#estructura-del-proyecto)
+9. [Solución de problemas](#solución-de-problemas)
+10. [Recursos adicionales](#recursos-adicionales)
+
 ---
 
-# Get started
+## Prerrequisitos
 
-For full documentation visit [zensical.org](https://zensical.org/docs/).
+- Terminal con acceso a internet
+- Git instalado (opcional, para control de versiones)
+- Editor de código (VS Code, Sublime, Intellij IDEA etc.)
 
-## Commands
+---
 
-* [`zensical new`][new] - Create a new project
-* [`zensical serve`][serve] - Start local web server
-* [`zensical build`][build] - Build your site
+## Paso 1: Instalar `uv`
 
-  [new]: https://zensical.org/docs/usage/new/
-  [serve]: https://zensical.org/docs/usage/preview/
-  [build]: https://zensical.org/docs/usage/build/
+`uv` es un gestor de paquetes y entornos de Python. Abre tu terminal y ejecuta:
 
-## Examples
-
-### Admonitions
-
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/)
-
-!!! note
-
-    This is a **note** admonition. Use it to provide helpful information.
-
-!!! warning
-
-    This is a **warning** admonition. Be careful!
-
-### Details
-
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/#collapsible-blocks)
-
-??? info "Click to expand for more info"
-
-    This content is hidden until you click to expand it.
-    Great for FAQs or long explanations.
-
-## Code Blocks
-
-> Go to [documentation](https://zensical.org/docs/authoring/code-blocks/)
-
-``` python hl_lines="2" title="Code blocks"
-def greet(name):
-    print(f"Hello, {name}!") # (1)!
-
-greet("Python")
+```bash
+curl -sSf https://astral.sh/uv/install.sh | sh
 ```
 
-1.  > Go to [documentation](https://zensical.org/docs/authoring/code-blocks/#code-annotations)
+> **Nota:** Tras completar la instalación, cierra y vuelve a abrir tu terminal para asegurarte de que el comando `uv` está disponible.
 
-    Code annotations allow to attach notes to lines of code.
+**Comprobar la instalación:**
 
-Code can also be highlighted inline: `#!python print("Hello, Python!")`.
-
-## Content tabs
-
-> Go to [documentation](https://zensical.org/docs/authoring/content-tabs/)
-
-=== "Python"
-
-    ``` python
-    print("Hello from Python!")
-    ```
-
-=== "Rust"
-
-    ``` rs
-    println!("Hello from Rust!");
-    ```
-
-## Diagrams
-
-> Go to [documentation](https://zensical.org/docs/authoring/diagrams/)
-
-``` mermaid
-graph LR
-  A[Start] --> B{Error?};
-  B -->|Yes| C[Hmm...];
-  C --> D[Debug];
-  D --> B;
-  B ---->|No| E[Yay!];
+```bash
+which uv
+uv --version
 ```
 
-## Footnotes
+*(Debería apuntar habitualmente a `~/.cargo/bin/uv` o `~/.local/bin/uv`)*
 
-> Go to [documentation](https://zensical.org/docs/authoring/footnotes/)
+---
 
-Here's a sentence with a footnote.[^1]
+## Paso 2: Crear la carpeta del proyecto e inicializarlo
 
-Hover it, to see a tooltip.
+Crea un directorio para tu proyecto y entra en él:
 
-[^1]: This is the footnote.
+```bash
+mkdir mi-proyecto-docs
+cd mi-proyecto-docs
+```
 
+A continuación, inicializa el proyecto con `uv`:
 
-## Formatting
+```bash
+uv init
+```
 
-> Go to [documentation](https://zensical.org/docs/authoring/formatting/)
+Esto crea la estructura básica del proyecto, incluyendo `pyproject.toml` y el archivo `.python-version`.
 
-- ==This was marked (highlight)==
-- ^^This was inserted (underline)^^
-- ~~This was deleted (strikethrough)~~
-- H~2~O
-- A^T^A
-- ++ctrl+alt+del++
+---
 
-## Icons, Emojis
+## Paso 3: Añadir la dependencia de Zensical
 
-> Go to [documentation](https://zensical.org/docs/authoring/icons-emojis/)
+Instala **Zensical** como dependencia de desarrollo (recomendado):
 
-* :sparkles: `:sparkles:`
-* :rocket: `:rocket:`
-* :tada: `:tada:`
-* :memo: `:memo:`
-* :eyes: `:eyes:`
+```bash
+uv add --dev zensical
+```
 
-## Maths
+Esto registra `zensical` bajo `[dependency-groups.dev]` en `pyproject.toml`, indicando que solo se necesita para desarrollo, no para producción.
 
-> Go to [documentation](https://zensical.org/docs/authoring/math/)
+`uv` gestionará automáticamente la descarga e instalación del paquete en el entorno virtual del proyecto.
 
-$$
-\cos x=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k)!}x^{2k}
-$$
+Solo entonces inicializamos zensical con `uv run zensical new .`
 
-!!! warning "Needs configuration"
-    Note that MathJax is included via a `script` tag on this page and is not
-    configured in the generated default configuration to avoid including it
-    in a pages that do not need it. See the documentation for details on how
-    to configure it on all your pages if they are more Maths-heavy than these
-    simple starter pages.
+---
 
-<script id="MathJax-script" src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [["\\(", "\\)"]],
-      displayMath: [["\\[", "\\]"]],
-      processEscapes: true,
-      processEnvironments: true
-    },
-    options: {
-      ignoreHtmlClass: ".*|",
-      processHtmlClass: "arithmatex"
-    }
-  };
+## Paso 4: Levantar el servidor local
 
-  document$.subscribe(() => {
-    MathJax.startup.output.clearCache()
-    MathJax.typesetClear()
-    MathJax.texReset()
-    MathJax.typesetPromise()
-  })
-</script>
+Para compilar la documentación y poner en marcha el servidor web de desarrollo, ejecuta:
 
-## Task Lists
+```bash
+uv run zensical serve
+```
 
-> Go to [documentation](https://zensical.org/docs/authoring/lists/#using-task-lists)
+Verás una salida en la terminal indicando la dirección URL local, normalmente:
 
-* [x] Install Zensical
-* [x] Configure `zensical.toml`
-* [x] Write amazing documentation
-* [ ] Deploy anywhere
+```
+http://127.0.0.1:8000
+```
 
-## Tooltips
+Abre esa URL en tu navegador preferido para ver el sitio web generado.
 
-> Go to [documentation](https://zensical.org/docs/authoring/tooltips/)
+---
 
-[Hover me][example]
+## Paso 5: Edición y actualización en tiempo real (Live Reload)
 
-  [example]: https://example.com "I'm a tooltip!"
+El servidor de desarrollo de Zensical cuenta con un motor de recarga en tiempo real:
+
+1. **Abre y edita:** Modifica cualquier archivo `.md` en tu editor de código.
+2. **Guarda los cambios:** Al guardar el archivo, el servidor detectará la modificación de inmediato.
+3. **Sincronización instantánea:** La página web abierta en el navegador reflejará los cambios automáticamente sin necesidad de recargar manualmente la página.
+
+---
+
+## Comandos útiles
+
+| Comando | Descripción |
+|---------|-------------|
+| `uv run zensical serve` | Inicia servidor de desarrollo con live reload |
+| `uv run zensical build` | Compila el sitio para producción |
+| `uv run zensical build --clean` | Compila limpiando la carpeta `site` primero |
+| `uv add --dev zensical` | Añade Zensical como dependencia de desarrollo |
+| `uv remove zensical` | Elimina Zensical del proyecto |
+| `uv run zensical --help` | Muestra todos los comandos disponibles |
+
+---
+
+## Estructura del proyecto
+
+Tras seguir esta guía, tu proyecto tendrá esta estructura:
+
+```
+mi-proyecto-docs/
+├── docs/
+│   ├── index.md      # Página principal
+│   └── markdown.md   # Página de ejemplo
+├── src/
+│   └── tu_paquete/
+├── .python-version
+├── pyproject.toml
+├── README.md
+└── zensical.toml     # Configuración de Zensical
+```
+
+---
+
+## Solución de problemas
+
+### El comando `uv` no se encuentra
+
+Asegúrate de haber cerrado y reabierto la terminal tras instalar uv. Si persiste:
+
+```bash
+# Verifica la instalación
+which uv
+
+# Si usas bash/zsh, añade al ~/.bashrc o ~/.zshrc:
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+### Error de puerto ocupado
+
+Si el puerto 8000 está en uso, Zensical usará otro automáticamente. También puedes especificarlo:
+
+```bash
+uv run zensical serve --dev-addr 0.0.0.0:8080
+```
+
+### Zensical no detecta cambios
+
+Asegúrate de:
+- Estar editando archivos dentro de la carpeta `docs/`
+- Guardar los cambios (Ctrl+S / Cmd+S)
+- Que el servidor se ejecutó con `uv run zensical serve` (no `build`)
+
+---
+
+## Recursos adicionales
+
+- [Documentación oficial de Zensical](https://zensical.org/docs/)
+- [Repositorio de Zensical en GitHub](https://github.com/zensical/zensical)
+- [Documentación de uv](https://docs.astral.sh/uv/)
+- [Guía de migración desde MkDocs](https://zensical.org/docs/compatibility/mkdocs/migration/)
+- [Características de Zensical](https://zensical.org/studio/features/)
