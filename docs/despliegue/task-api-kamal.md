@@ -242,3 +242,50 @@ env:
 !!! warning "Permisos del volumen"
     El contenedor corre con el usuario `10001`. La carpeta `/var/lib/tasks-api` del servidor debe poder escribirla ese usuario; si no, SQLite fallará al crear la base de datos.
 
+## Paso 5: desplegar
+
+Orden habitual:
+
+```bash
+just config staging     # comprueba que la configuración es válida
+just setup staging      # SOLO la primera vez
+just deploy staging     # las siguientes veces
+just status staging     # ¿está todo en marcha?
+just logs staging       # ¿qué dice la aplicación?
+```
+
+Qué hace `setup` frente a `deploy`:
+
+| Comando | Cuándo | Qué hace |
+|---|---|---|
+| `kamal setup` | Primera vez | Prepara el servidor (Docker, proxy), construye, sube y arranca. |
+| `kamal deploy` | Cada versión nueva | Construye, sube, arranca la nueva y retira la vieja. |
+
+Una vez desplegado:
+
+```bash
+curl https://stg.example.com/health
+curl -X POST https://stg.example.com/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Primera tarea"}'
+```
+
+### Volver a una versión anterior
+
+```bash
+kamal rollback --help
+```
+
+Kamal conserva las imágenes anteriores, así que puedes volver a una versión que funcionaba indicando su identificador.
+
+### El script `scripts/deploy.sh`
+
+Es lo mismo que la receta `deploy`, pero como script de Bash:
+
+```bash
+./scripts/deploy.sh staging           # despliega
+./scripts/deploy.sh production setup  # primer despliegue en producción
+```
+
+Usa `set -Eeuo pipefail`: se detiene ante cualquier error, variable sin definir o fallo dentro de una tubería. Valida el destino y exporta las dependencias **antes** de llamar a Kamal.
+
