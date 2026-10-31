@@ -82,3 +82,81 @@ FastAPI genera documentación interactiva en `http://localhost:8000/docs`.
 
 La base de datos se elige con la variable `DATABASE_URL`. Si no existe, usa `sqlite:///./tasks.db`.
 
+## Paso 1: el Dockerfile
+
+```dockerfile
+FROM python:3.14-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app/
+
+RUN useradd --create-home --uid 10001 appuser \
+    && mkdir -p /data \
+    && chown -R appuser:appuser /app /data
+USER 10001
+
+EXPOSE 8000
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Decisiones importantes:
+
+- **Primero `requirements.txt`, después el código.** Docker guarda cada instrucción como una capa en caché. Si solo cambias código, no se reinstalan las dependencias.
+- **Usuario sin privilegios.** El proceso no corre como `root`, así que un fallo de seguridad en la app hace menos daño.
+- **`--host 0.0.0.0`.** Dentro de un contenedor hay que escuchar en todas las interfaces; si no, nadie podría conectarse desde fuera.
+- **`/data` para SQLite.** La base de datos vive en un volumen, no dentro de la imagen.
+
+### `.dockerignore`
+
+Evita que entren en la imagen archivos que no deben: `.git`, `.venv`, `.env*`, `*.db`, cachés. Así la imagen es más pequeña y no se cuelan secretos.
+
+### Exportar dependencias
+
+El `Dockerfile` instala desde `requirements.txt`, que se genera a partir del `uv.lock`:
+
+```bash
+uv export --locked --no-dev --no-emit-project --format requirements.txt --output-file requirements.txt
+```
+
+- `--locked`: falla si el `uv.lock` no está al día.
+- `--no-dev`: no incluye `pytest` ni herramientas de desarrollo.
+
+## Paso 2: probar la imagen en local
+
+```bash
+docker build -t tasks-api:local .
+docker volume create tasks-api-data
+docker run --rm --name tasks-api -p 8000:8000 \
+  -v tasks-api-data:/data \
+  -e DATABASE_URL=sqlite:////data/tasks.db \
+  tasks-api:local
+```
+
+Se usa un **volumen** para que las tareas no se pierdan al parar el contenedor.
+
+!!! tip "Cuatro barras"
+    `sqlite:////data/tasks.db` lleva cuatro `/`: tres del formato de la URL y una de la ruta absoluta `/data/tasks.db`.
+
+## Paso 3: el `justfile`
+
+Para no recordar comandos largos, se guardan como recetas:
+
+| Receta | Qué hace |
+|---|---|
+| `just setup-local` | Instala dependencias (`uv sync`). |
+| `just run` | Arranca la API con recarga automática. |
+| `just test` | Ejecuta `pytest`. |
+| `just docker-build` | Exporta dependencias y construye la imagen. |
+| `just docker-run` | Arranca la imagen en local con volumen. |
+| `just config staging` | Valida la configuración de Kamal. |
+| `just setup staging` | Primer despliegue (prepara el servidor). |
+| `just deploy staging` | Despliega una versión nueva. |
+| `just status staging` | Muestra el estado de los servicios. |
+| `just logs staging` | Muestra los logs de la aplicación. |
+
+El destino por defecto es `staging`. Las recetas rechazan cualquier destino que no sea `staging` o `production`, así un error de escritura no despliega donde no toca.
+
