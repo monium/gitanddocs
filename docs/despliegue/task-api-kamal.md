@@ -289,3 +289,59 @@ Es lo mismo que la receta `deploy`, pero como script de Bash:
 
 Usa `set -Eeuo pipefail`: se detiene ante cualquier error, variable sin definir o fallo dentro de una tubería. Valida el destino y exporta las dependencias **antes** de llamar a Kamal.
 
+## Buenas prácticas y fallos típicos
+
+- **No versiones la base de datos.** Un `tasks.db` dentro del repositorio indica que falta una línea en `.gitignore` (por ejemplo `*.db`).
+- **Revisa cada entorno.** Si copias `deploy.staging.yml` a `deploy.production.yml`, cambia `APP_ENV`, el servidor y el dominio. Es fácil dejar un valor de staging en producción.
+- **Prueba siempre en staging antes de producción.**
+- **No pongas IPs ni dominios reales en documentación pública** si no hace falta.
+- **SQLite es válido para aprender o para poca carga.** Si hay varios servidores o mucho tráfico, conviene PostgreSQL.
+
+| Síntoma | Causa probable |
+|---|---|
+| Kamal no puede conectar | Usuario SSH incorrecto o clave no autorizada en el servidor. |
+| `denied` al subir la imagen | Token del registro ausente o sin permiso de escritura. |
+| La versión nueva no pasa a producción | `/up` no responde `200`; mira `just logs`. |
+| No se emite el certificado | El DNS no apunta al servidor o los puertos 80/443 están cerrados. |
+| Error de arquitectura al arrancar | Falta `builder.arch` o no coincide con el servidor. |
+| SQLite no puede escribir | Permisos de la carpeta montada. |
+
+## Autoevaluación
+
+??? question "1. ¿Por qué se copia `requirements.txt` antes que el código en el Dockerfile?"
+    Para aprovechar la caché de capas de Docker. Si solo cambia el código, la capa de dependencias no se reconstruye y el build es mucho más rápido.
+
+??? question "2. ¿Por qué la aplicación escucha en `0.0.0.0` dentro del contenedor?"
+    Porque con `127.0.0.1` solo aceptaría conexiones desde dentro del propio contenedor. Con `0.0.0.0` acepta las que llegan a través de la red de Docker, que es como llega el proxy.
+
+??? question "3. ¿Para qué sirve el volumen montado en `/data`?"
+    Para que la base de datos SQLite persista. Los datos del sistema de archivos de un contenedor se pierden al reemplazarlo; el volumen vive en el servidor y sobrevive a los despliegues.
+
+??? question "4. ¿Qué diferencia hay entre `kamal setup` y `kamal deploy`?"
+    `setup` se usa la primera vez: además de desplegar, prepara el servidor (instala Docker y arranca el proxy). `deploy` solo publica una versión nueva en un servidor ya preparado.
+
+??? question "5. ¿Cómo evita Kamal cortes al publicar una versión nueva?"
+    Arranca el contenedor nuevo junto al antiguo, espera a que su comprobación de salud (`/up`) responda correctamente, mueve el tráfico y entonces retira el antiguo. Si la comprobación falla, el antiguo sigue sirviendo.
+
+??? question "6. ¿Por qué `KAMAL_REGISTRY_PASSWORD` no aparece con su valor en `deploy.yml`?"
+    Porque es un secreto. En el YAML solo está el nombre de la variable; el valor se guarda en un archivo de secretos que no se sube a Git.
+
+??? question "7. ¿Qué hace `ssl: true` junto con `proxy.host`?"
+    Hace que kamal-proxy obtenga y renueve un certificado Let's Encrypt para ese dominio. Para ello el DNS debe apuntar al servidor y los puertos 80 y 443 deben estar abiertos.
+
+??? question "8. ¿Por qué el contenedor usa un usuario sin privilegios?"
+    Para limitar el daño si alguien consigue ejecutar código en la aplicación: no tendría permisos de `root` dentro del contenedor.
+
+??? question "9. ¿Para qué sirven staging y production por separado?"
+    Staging permite probar una versión en un entorno parecido al real sin afectar a los usuarios. Cuando funciona, se despliega a producción con los mismos pasos.
+
+??? question "10. ¿Qué significa `builder.arch: amd64`?"
+    Que la imagen se construye para procesadores x86-64. Es necesario si se construye desde una máquina con arquitectura distinta (por ejemplo, un Mac con chip ARM) y el servidor es `amd64`.
+
+## Recursos
+
+- Repositorio: [monium/task-api](https://github.com/monium/task-api)
+- [Documentación de Kamal](https://kamal-deploy.org/)
+- [Documentación de FastAPI](https://fastapi.tiangolo.com/)
+- [Documentación de uv](https://docs.astral.sh/uv/)
+- [just](https://github.com/casey/just)
