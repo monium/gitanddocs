@@ -160,3 +160,85 @@ Para no recordar comandos largos, se guardan como recetas:
 
 El destino por defecto es `staging`. Las recetas rechazan cualquier destino que no sea `staging` o `production`, así un error de escritura no despliega donde no toca.
 
+## Paso 4: configurar Kamal
+
+### Qué es Kamal
+
+Kamal entra por SSH al servidor, instala Docker si hace falta, descarga tu imagen y arranca el contenedor detrás de un proxy (**kamal-proxy**). Al publicar una versión nueva arranca primero el contenedor nuevo, espera a que `/up` responda bien y solo entonces retira el viejo. Por eso no hay corte.
+
+### Configuración común: `config/deploy.yml`
+
+```yaml
+service: tasks-api
+
+image: usuario/tasks-api
+
+registry:
+  server: ghcr.io
+  username: usuario
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+ssh:
+  user: ubuntu
+
+builder:
+  arch: amd64
+
+proxy:
+  app_port: 8000
+
+env:
+  clear:
+    PYTHONUNBUFFERED: "1"
+```
+
+| Clave | Significado |
+|---|---|
+| `service` | Nombre de la aplicación en el servidor. |
+| `image` | Nombre de la imagen en el registro. |
+| `registry` | Dónde se sube y se descarga la imagen. |
+| `password` | **No se escribe aquí.** Es el nombre de una variable secreta. |
+| `ssh.user` | Usuario con el que Kamal entra al servidor. |
+| `builder.arch` | Arquitectura del servidor. Si construyes en un Mac con chip ARM y el servidor es `amd64`, hay que indicarlo. |
+| `proxy.app_port` | Puerto en el que escucha la app dentro del contenedor. |
+| `env.clear` | Variables de entorno no secretas. |
+
+!!! danger "Secretos"
+    El token del registro (`KAMAL_REGISTRY_PASSWORD`) va en un archivo de secretos que **no se sube a Git**. Si lo subes por error, hay que revocarlo.
+
+### Un archivo por entorno
+
+Kamal llama **destino** a cada entorno. Con `-d staging`, mezcla `deploy.yml` con `deploy.staging.yml`.
+
+`config/deploy.staging.yml`:
+
+```yaml
+servers:
+  web:
+    - 203.0.113.10        # IP del servidor de staging
+
+proxy:
+  host: stg.example.com
+  app_port: 8000
+  ssl: true
+
+volumes:
+  - /var/lib/tasks-api:/data
+
+env:
+  clear:
+    APP_ENV: staging
+    DATABASE_URL: sqlite:////data/tasks.db
+```
+
+- `servers.web`: máquinas donde se despliega.
+- `proxy.host` + `ssl: true`: el proxy pide un certificado **Let's Encrypt** automáticamente para ese dominio.
+- `volumes`: monta una carpeta del servidor en `/data` del contenedor. Ahí vive SQLite.
+
+!!! warning "Requisitos para que funcione el HTTPS"
+    El dominio debe apuntar por DNS a la IP del servidor, y los puertos 80 y 443 deben estar abiertos.
+
+!!! warning "Permisos del volumen"
+    El contenedor corre con el usuario `10001`. La carpeta `/var/lib/tasks-api` del servidor debe poder escribirla ese usuario; si no, SQLite fallará al crear la base de datos.
+
