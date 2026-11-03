@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Pregunta general
+  - name: Documentación de la clase
     url: https://monium.github.io/gitanddocs/
-    about: Si no sabes qué tipo de issue crear, consulta aquí primero.
+    about: Apuntes del curso sobre Git, Markdown, Zensical y Gitea.
