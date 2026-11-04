@@ -1,12 +1,12 @@
-## Desplegar el contenedor
+# Desplegar el contenedor
 
-### Construir la imagen
+## Construir la imagen
 
 ```bash
 docker build -t mi-sitio .
 ```
 
-### Ejecutar el contenedor
+## Ejecutar el contenedor
 
 ```bash
 docker run -d -p 80:80 --name mi-sitio-container mi-sitio
@@ -37,7 +37,7 @@ docker start mi-sitio-container
 docker rm -f mi-sitio-container
 ```
 
-### Actualizar el sitio tras hacer cambios
+## Actualizar el sitio tras hacer cambios
 
 ```bash
 docker build -t mi-sitio .
