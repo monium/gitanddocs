@@ -15,6 +15,11 @@ nav = [
   { "Markdown in 5min" = "markdown.md" },
   { "Obtener site" = "get-site.md" },
   { "Using Git & Github" = "trabajando-con-git.md" },
+  { "Git intermedio" = [
+    { "Merge, rebase y conflictos" = "git/merge-rebase-conflictos.md" },
+    { "Deshacer cambios" = "git/deshacer-cambios.md" },
+    { ".gitignore y tags" = "git/gitignore-tags.md" },
+  ]},
   { "Tema Visual" = "tema-visual.md" },
   { "Gitea" = [
   { "Install Gitea with Docker" = "gitea/Install-Gitea-with-docker.md" },

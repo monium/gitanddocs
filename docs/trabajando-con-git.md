@@ -161,3 +161,12 @@ Para crear el Pull Request:
 5. Comprobamos que el repositorio y la rama de destino son el repositorio original del profesor y su rama main.
 6. Añadimos una descripción de los cambios realizados.
 7. Creamos el Pull Request.
+
+
+## Siguientes pasos
+
+Cuando domines este flujo, continúa con la sección **Git intermedio**:
+
+- [Merge, rebase y conflictos](git/merge-rebase-conflictos.md)
+- [Deshacer cambios](git/deshacer-cambios.md)
+- [.gitignore y tags](git/gitignore-tags.md)
