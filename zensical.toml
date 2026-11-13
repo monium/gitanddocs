@@ -26,6 +26,7 @@ nav = [
   { "Install Gitea with Docker" = "gitea/Install-Gitea-with-docker.md" },
   ]},
   { "Despliegue" = [
+  { "Desplegar contenedor nginx" = "despliegue/contenedor-nginx.md" },
   { "Desplegar task-api con Kamal" = "despliegue/task-api-kamal.md" },
   ]},
 ]
