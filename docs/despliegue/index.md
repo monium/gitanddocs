@@ -3,4 +3,4 @@ icon: lucide/cloud-upload
 ---
 
 # Despliegue
-Guías de puesta en producción con contenedores y Kamal.
+Guías de puesta en producción con contenedores y Kamal
