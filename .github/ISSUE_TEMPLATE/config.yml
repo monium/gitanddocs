@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Documentación de la clase
-    url: https://monium.github.io/gitanddocs/
-    about: Apuntes del curso sobre Git, Markdown, Zensical y Gitea.
+  - name: ¿Qué plantilla elijo?
+    url: https://monium.github.io/gitanddocs/elegir-plantilla-issue/
+    about: Si no sabes qué plantilla elegir, consulta aquí primero.
