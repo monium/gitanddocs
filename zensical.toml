@@ -15,6 +15,7 @@ nav = [
   { "Markdown in 5min" = "markdown.md" },
   { "Obtener site" = "get-site.md" },
   { "Using Git & Github" = "trabajando-con-git.md" },
+  { "Elegir plantilla de issue" = "elegir-plantilla-issue.md" },
   { "Git intermedio" = [
     { "Merge, rebase y conflictos" = "git/merge-rebase-conflictos.md" },
     { "Deshacer cambios" = "git/deshacer-cambios.md" },
