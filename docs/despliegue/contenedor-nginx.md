@@ -1,3 +1,7 @@
+---
+icon: simple/nginx
+---
+
 # Desplegar el contenedor
 
 ## Construir la imagen

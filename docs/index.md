@@ -1,3 +1,7 @@
+---
+icon: lucide/rocket
+---
+
 # Uv y Zensical
 
 ![Python](https://img.shields.io/badge/Python-3.14+-blue)
