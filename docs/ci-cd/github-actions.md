@@ -258,3 +258,43 @@ docker run --rm ghcr.io/TU_USUARIO/TU_REPO:HASH_DEL_COMMIT
 
 Debe imprimir `2 + 3 = 5`. Si el paquete es privado, tendrás que hacer `docker login ghcr.io` con un token; nunca escribas ese token en el repositorio.
 
+## Problemas frecuentes
+
+| Problema | Causa probable | Solución |
+|---|---|---|
+| El workflow no aparece en Actions | El archivo no está en `.github/workflows/` o no se hizo `push` a la rama correcta | Revisa la ruta con `git ls-files .github` |
+| `test` falla | Dependencias o pruebas rotas | Mira el registro con `gh run view --log` y reproduce `pytest -q` en local |
+| Falla el inicio de sesión en `ghcr.io` | Falta el permiso de escritura de paquetes | Añade `packages: write` en `permissions` |
+| `build-and-push` no se ejecuta | La condición `if` no se cumple | Comprueba que es un `push` a `main`, no un PR |
+| La imagen no aparece en Packages | Etiqueta o registro mal escritos | Revisa `registry` y `tags` |
+| `docker pull` dice *denied* | El paquete es privado | Autentícate con un token de solo lectura o hazlo público |
+| Error por nombre de imagen no válido | `github.repository` contiene mayúsculas y GHCR exige minúsculas | Pasa el nombre a minúsculas antes de usarlo en `tags` |
+
+## Autoevaluación
+
+??? question "1. ¿Por qué el trabajo `test` se ejecuta antes que la publicación?"
+    Porque `build-and-push` declara `needs: test`. Si las pruebas fallan, el segundo trabajo no se ejecuta, así que nunca se publica una imagen con código roto.
+
+??? question "2. ¿Por qué un pull request no publica la imagen?"
+    Porque la condición `if` exige que el evento sea un `push` a `main`. Un PR solo ejecuta las pruebas, que es lo que se quiere para validar sin publicar.
+
+??? question "3. ¿De dónde sale el token con el que se publica la imagen?"
+    De `secrets.GITHUB_TOKEN`, un token que GitHub genera automáticamente en cada ejecución. No hay ninguna credencial escrita en el YAML.
+
+??? question "4. ¿Qué identifica a la imagen publicada y por qué importa?"
+    El hash del commit (`github.sha`) usado como etiqueta. Permite saber exactamente qué código generó cada artefacto y volver a una versión concreta.
+
+??? question "5. ¿Por qué `permissions` se limita al mínimo?"
+    Para que el trabajo solo tenga los permisos necesarios (leer el código y escribir paquetes). Si algo saliera mal o se manipulara el *workflow*, el daño posible sería menor.
+
+??? question "6. ¿Para qué sirve `workflow_dispatch`?"
+    Para poder lanzar el *workflow* manualmente desde la pestaña Actions, sin necesidad de hacer un `push`.
+
+??? question "7. En el workflow de esta web, ¿por qué no se ejecuta con los pull requests?"
+    Porque `on` solo incluye `push` a `main`. La web publicada debe reflejar lo que ya está aprobado y fusionado, no lo que se propone en un PR.
+
+## Recursos
+
+- [Práctica original del curso](https://dpl-f1facc.gitlab.io/ut01/practicas/guiada-25-github-actions-cicd/)
+- [Documentación de GitHub Actions](https://docs.github.com/es/actions)
+- [Teoría de CI/CD](teoria.md)
