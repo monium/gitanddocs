@@ -34,6 +34,7 @@ nav = [
   { "CI/CD" = [
     "ci-cd/index.md",
     { "Integración y despliegue continuos" = "ci-cd/teoria.md" },
+    { "CI/CD con GitHub Actions" = "ci-cd/github-actions.md" },
   ]},
   { "Tema Visual" = "tema-visual.md" },
 ]

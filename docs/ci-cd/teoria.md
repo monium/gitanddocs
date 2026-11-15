@@ -86,7 +86,7 @@ Publicar **solo desde `main`** evita generar artefactos de ramas que nunca llega
 
 Todas comparten la idea de que un **archivo versionado en el repositorio** define *cuándo* y *qué* se ejecuta. Como vive en Git, el *pipeline* también se revisa con *pull requests*.
 
-La siguiente página usa GitHub Actions.
+La siguiente página usa [GitHub Actions](github-actions.md).
 
 ## Secretos y buenas prácticas
 
