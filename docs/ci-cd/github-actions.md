@@ -173,3 +173,88 @@ __pycache__/
 
 Crea un repositorio (con `gh repo create` o desde la web), añade el remoto y haz `git push -u origin main`.
 
+### Paso 5: el workflow
+
+Crea `.github/workflows/ci-cd.yml`:
+
+```yaml
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+
+  build-and-push:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+```
+
+Qué hace cada pieza:
+
+| Clave | Función |
+|---|---|
+| `on.pull_request` | Valida los *pull requests* sin publicar nada. |
+| `on.workflow_dispatch` | Permite lanzarlo a mano desde la pestaña Actions. |
+| `needs: test` | Si las pruebas fallan, **no se construye ni se publica** la imagen. |
+| `if: github.ref == ... && github.event_name == 'push'` | Publica solo en un `push` a `main`, nunca desde un PR. |
+| `permissions.packages: write` | El permiso mínimo para subir la imagen a GHCR. |
+| `secrets.GITHUB_TOKEN` | Token que GitHub genera solo en cada ejecución. **No hay credenciales en el archivo.** |
+| `tags: ...:${{ github.sha }}` | Etiqueta la imagen con el hash del commit, para saber de qué código sale. |
+
+Haz commit y `git push origin main`.
+
+### Paso 6: comprobar el resultado
+
+En la pestaña **Actions** del repositorio deberías ver:
+
+- El trabajo `test` en verde.
+- El trabajo `build-and-push` ejecutado, porque estás en `main`.
+
+Con la GitHub CLI:
+
+```bash
+gh run list --limit 5
+gh run watch
+```
+
+En el apartado **Packages** del repositorio aparece la imagen, con el hash del commit como etiqueta.
+
+Prueba ahora un *pull request*: crea una rama, cambia algo y ábrelo. Solo debe ejecutarse `test`; `build-and-push` no.
+
+### Paso 7: probar la imagen publicada
+
+```bash
+docker pull ghcr.io/TU_USUARIO/TU_REPO:HASH_DEL_COMMIT
+docker run --rm ghcr.io/TU_USUARIO/TU_REPO:HASH_DEL_COMMIT
+```
+
+Debe imprimir `2 + 3 = 5`. Si el paquete es privado, tendrás que hacer `docker login ghcr.io` con un token; nunca escribas ese token en el repositorio.
+
