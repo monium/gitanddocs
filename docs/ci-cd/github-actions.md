@@ -93,3 +93,83 @@ Fíjate en que sigue las fases de un *pipeline* de la [teoría](teoria.md): sour
 !!! tip "Pruébalo antes de subirlo"
     El paso de *build* es el mismo comando que usas en local. Si `uv run zensical build --clean` falla en tu máquina, también fallará en GitHub.
 
+## Práctica: pruebas y publicación de una imagen
+
+Vamos a montar un *workflow* que, en cada `push` y *pull request*, ejecute las pruebas de una pequeña aplicación Python. Solo en `main` construirá y publicará una imagen Docker en **GHCR**, el registro de contenedores de GitHub.
+
+```text
+push o PR → job test → ¿push a main? ── sí → job build-and-push → ghcr.io
+                                      └─ no (PR) → fin
+```
+
+Necesitas Git, Docker, una cuenta de GitHub y Python. La GitHub CLI (`gh`) es opcional.
+
+### Paso 1: la aplicación y sus pruebas
+
+Crea una carpeta con tres archivos.
+
+`app.py`:
+
+```python
+def suma(a, b):
+    return a + b
+
+def es_par(n):
+    return n % 2 == 0
+```
+
+`test_app.py`:
+
+```python
+from app import suma, es_par
+
+def test_suma():
+    assert suma(2, 3) == 5
+
+def test_es_par():
+    assert es_par(4)
+    assert not es_par(3)
+```
+
+`requirements.txt`:
+
+```text
+pytest==8.3.2
+```
+
+### Paso 2: el Dockerfile
+
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app.py .
+CMD ["python", "-c", "from app import suma; print('2 + 3 =', suma(2, 3))"]
+```
+
+### Paso 3: comprobarlo en local
+
+Antes de automatizar nada, comprueba que funciona a mano:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest -q
+docker build -t guiada-25:local .
+docker run --rm guiada-25:local
+```
+
+Deberías ver `2 passed` y después `2 + 3 = 5`. Crea también un `.gitignore` para no versionar el entorno virtual:
+
+```text
+.venv/
+__pycache__/
+*.pyc
+```
+
+### Paso 4: subirlo a GitHub
+
+Crea un repositorio (con `gh repo create` o desde la web), añade el remoto y haz `git push -u origin main`.
+
