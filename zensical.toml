@@ -31,6 +31,11 @@ nav = [
     { "Desplegar contenedor nginx" = "despliegue/contenedor-nginx.md" },
     { "Desplegar task-api con Kamal" = "despliegue/task-api-kamal.md" },
   ]},
+  { "CI/CD" = [
+    "ci-cd/index.md",
+    { "Integración y despliegue continuos" = "ci-cd/teoria.md" },
+    { "CI/CD con GitHub Actions" = "ci-cd/github-actions.md" },
+  ]},
   { "Tema Visual" = "tema-visual.md" },
 ]
 
